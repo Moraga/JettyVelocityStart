@@ -1,7 +1,7 @@
 import org.apache.velocity.Template;
-import org.apache.velocity.VelocityContext;
-import org.apache.velocity.app.Velocity;
 import org.apache.velocity.app.VelocityEngine;
+import org.apache.velocity.context.Context;
+import org.apache.velocity.tools.ToolManager;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ServletHandler;
 
@@ -15,14 +15,16 @@ import java.util.Properties;
 
 public class Example {
     static VelocityEngine ve;
+    static Context context;
 
     public static void main(String[] args) throws Exception {
-		// velocity
+        // velocity
         Properties p = new Properties();
-        p.setProperty("file.resource.loader.path", "/your/template/dir");
+        p.setProperty("file.resource.loader.path", "/path/to/template");
         ve = new VelocityEngine(p);
-		
-		// server
+        ToolManager manager = new ToolManager();
+        context = manager.createContext();
+        // server
         Server server = new Server(8001);
         ServletHandler handler = new ServletHandler();
         server.setHandler(handler);
@@ -37,7 +39,6 @@ public class Example {
                 HttpServletResponse response) throws ServletException, IOException {
             String path = request.getPathInfo().substring(1);
             Template template = ve.getTemplate(path);
-            VelocityContext context = new VelocityContext();
             StringWriter w = new StringWriter();
             template.merge(context, w);
             response.setContentType("text/html; charset=utf-8");
